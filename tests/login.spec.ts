@@ -26,8 +26,7 @@ test('Validate successful login', async ({ page }) => {
   const products:Locator = page.locator('.card-body');
   await expect(products).toHaveCount(3);
   // Search validation
-  await expect(
-  page.getByRole('textbox', { name: 'search' })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'search' })).toBeVisible();
   // Token validation
   const token:string | null = await page.evaluate(() => localStorage.getItem('token'));
   expect(token).not.toBeNull();
