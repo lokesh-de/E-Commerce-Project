@@ -35,6 +35,8 @@ test.describe('Cart', () => {
   });
 
   test('Remove product from cart', async ({page}) => {
+    await cartPage.addToCartButton.nth(1).click();
+    await expect(cartPage.toastMessage).toContainText('Product Added To Cart');
     await cartPage.headerMenu.getByRole('button', { name: /Cart/i }).click();
     await expect(page).toHaveURL(/cart/);
     await expect(page.getByRole('heading', { name: /My Cart/i })).toBeVisible();
