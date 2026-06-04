@@ -1,44 +1,45 @@
-import{test, expect, Locator} from '@playwright/test';
+import{test, expect} from '@playwright/test';
+import { CartPage } from '../../pages/cartpage';
 test.describe('Cart', () => {
+  let cartPage: CartPage;
+  test.beforeEach(async ({ page }) => { cartPage = new CartPage(page);
+    await cartPage.navigateToCartPage();  
+  });
 
-  test.beforeEach(async ({ page }) => {
-    await page.goto("https://rahulshettyacademy.com/client/#/auth/login");
+  test('Validate cart URL', async ({ page }) => {
+    await expect(page).toHaveURL(/dashboard\/dash/);
   });
 
   test('Add product to cart', async ({page}) => {
-    const addToCartButtons: Locator = page.getByRole('button', {name: /Add To Cart/i});
-    await addToCartButtons.nth(1).click();
-    const toastMessage:Locator = page.locator('#toast-container');
-    await expect(toastMessage).toContainText('Product Added To Cart');
-    await expect(toastMessage).toBeHidden();
+    await cartPage.addToCartButton.nth(1).click();
+    await expect(cartPage.toastMessage).toContainText('Product Added To Cart');
+    await expect(cartPage.toastMessage).toBeHidden();
   });
 
   test('Verify cart total', async ({page}) => {
-    const headerMenu:Locator = page.locator('nav');
-    const cartItems: Locator = headerMenu.getByRole('button', { name: /Cart/i });
-    await expect(cartItems).toHaveCount(1);
+    await expect(cartPage.cartItems).toHaveCount(1);
   });
 
   test('Verify cart item details', async ({page}) => {
-    const headerMenu:Locator = page.locator('nav');
-    await headerMenu.getByRole('button', { name: /Cart/i }).click();
-    await expect(page).toHaveURL(/cart/);
+    await cartPage.headerMenu.getByRole('button', { name: /Cart/i }).click();
     await expect(page.getByRole('heading', { name: /My Cart/i })).toBeVisible();
     await expect(page.getByText('ZARA COAT 3')).toBeVisible();
-    const cartItem: Locator = page.locator('li').filter({has: page.getByRole('heading', { name: 'ZARA COAT 3' })});
-    await expect(cartItem.getByText('$ 11500', { exact: true })).toBeVisible();
+    await expect(cartPage.cartItem.getByText('$ 11500', { exact: true })).toBeVisible();
     await expect(page.getByText('IN STOCK')).toBeVisible();
     await expect(page.getByRole('button', { name: /Buy Now/i })).toBeVisible();
   });
 
+  test('Verify cart URL after clicking cart menu', async ({page}) => {
+    await cartPage.headerMenu.getByRole('button', { name: /Cart/i }).click();
+    await expect(page).toHaveURL(/cart/);
+  });
+
   test('Remove product from cart', async ({page}) => {
-    const headerMenu:Locator = page.locator('nav');
-    await headerMenu.getByRole('button', { name: /Cart/i }).click();
+    await cartPage.headerMenu.getByRole('button', { name: /Cart/i }).click();
     await expect(page).toHaveURL(/cart/);
     await expect(page.getByRole('heading', { name: /My Cart/i })).toBeVisible();
     await expect(page.getByText('ZARA COAT 3')).toBeVisible();
-    const deleteButton: Locator = page.locator('button.btn-danger');
-    await expect(deleteButton).toBeVisible();
-    await deleteButton.click();
+    await expect(cartPage.deleteButton).toBeVisible();
+    await cartPage.deleteButton.click();
   });
 });
