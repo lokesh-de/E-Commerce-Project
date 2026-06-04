@@ -1,15 +1,18 @@
-import{test, expect, Locator} from '@playwright/test';
-test.describe('Checkout', () => {
-
-  test.beforeEach(async ({ page }) => {
-    await page.goto("https://rahulshettyacademy.com/client/#/auth/login");
+import { test, expect } from '@playwright/test';
+import { CheckoutPage } from '../../pages/checkoutpage';
+import { CartPage } from '../../pages/cartpage';
+test.describe('Checkout', () => { 
+  let checkoutPage: CheckoutPage;
+  let cartPage: CartPage;
+  test.beforeEach(async ({ page }) => { 
+    checkoutPage = new CheckoutPage(page);
+    cartPage = new CartPage(page);
+    await checkoutPage.navigateToCheckoutPage();
   });
 
   test('Verify checkout functionality', async ({ page }) => {
-    const addToCartButtons: Locator = page.getByRole('button', {name: /Add To Cart/i});
-    await addToCartButtons.nth(1).click();
-    const headerMenu:Locator = page.locator('nav');
-    await headerMenu.getByRole('button', { name: /Cart/i }).click();
+    await cartPage.addToCartButton.nth(1).click();
+    await cartPage.headerMenu.getByRole('button', { name: /Cart/i }).click();
     await expect(page.getByText('Subtotal', { exact: true })).toBeVisible();
     await expect(page.getByText('Total', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: /Checkout/i })).toBeVisible();
@@ -18,10 +21,8 @@ test.describe('Checkout', () => {
   });
 
   test('Verify order details on checkout page', async ({ page }) => {
-    const addToCartButtons: Locator = page.getByRole('button', {name: /Add To Cart/i});
-    await addToCartButtons.nth(1).click();
-    const headerMenu:Locator = page.locator('nav');
-    await headerMenu.getByRole('button', { name: /Cart/i }).click();
+    await cartPage.addToCartButton.nth(1).click();
+    await cartPage.headerMenu.getByRole('button', { name: /Cart/i }).click();
     await page.getByRole('button', { name: /Checkout/i }).click();
     await expect(page.locator('.item__title')).toHaveText('ZARA COAT 3');
     await expect(page.locator('.item__price')).toHaveText('$ 11500');
@@ -33,24 +34,17 @@ test.describe('Checkout', () => {
   });
 
   test('Verify order placement', async ({ page }) => {
-    const addToCartButtons: Locator = page.getByRole('button', {name: /Add To Cart/i});
-    await addToCartButtons.nth(1).click();
-    const headerMenu:Locator = page.locator('nav');
-    await headerMenu.getByRole('button', { name: /Cart/i }).click();
+    await cartPage.addToCartButton.nth(1).click();
+    await cartPage.headerMenu.getByRole('button', { name: /Cart/i }).click();
     await page.getByRole('button', { name: /Checkout/i }).click();
-    const countryInput: Locator = page.getByPlaceholder('Select Country');
-    await expect(countryInput).toBeVisible();
-    await countryInput.click();
-    await countryInput.pressSequentially('ind');
-    const dropdown = page.locator('.ta-results');
-    await expect(dropdown).toBeVisible();
+    await expect(checkoutPage.countryInput).toBeVisible();
+    await checkoutPage.countryInput.click();
+    await checkoutPage.countryInput.pressSequentially('ind');
+    await expect(checkoutPage.countryDropdown).toBeVisible();
     await page.locator('.ta-item').getByText('India', { exact: true }).click();
     await page.getByText('Place Order', { exact: true }).click();
-    // URL validation
     await expect(page).toHaveURL(/thanks/);
-    // Success message
-    const toastMessage:Locator = page.locator('#toast-container');
-    await expect(toastMessage).toContainText('Order Placed Successfully');
-    await expect(toastMessage).toBeVisible();
+    await expect(cartPage.toastMessage).toContainText('Order Placed Successfully');
+    await expect(cartPage.toastMessage).toBeVisible();
   });
 });
