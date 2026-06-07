@@ -1,4 +1,4 @@
-import{Page, Locator} from '@playwright/test';
+import{ Page, Locator } from '@playwright/test';
 export class CartPage {
     readonly page: Page;
     readonly addToCartButton: Locator;
