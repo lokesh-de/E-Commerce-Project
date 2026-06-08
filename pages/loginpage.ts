@@ -1,5 +1,5 @@
 import { Page, Locator } from '@playwright/test';
-
+// This class represents the login page of the application and provides methods to interact with it.
 export class LoginPage {
     readonly page: Page;
     readonly userEmail: Locator;
